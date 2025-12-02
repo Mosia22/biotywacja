@@ -20,7 +20,8 @@ const BlogSection = () => {
 
   useEffect(() => {
     sanityClient
-      .fetch(`
+      .fetch(
+        `
         *[_type == "post"] | order(publishedAt desc)[0...6] {
           _id,
           title,
@@ -29,7 +30,8 @@ const BlogSection = () => {
           body,
           publishedAt
         }
-      `)
+      `
+      )
       .then((data) => setPosts(data))
       .catch(console.error);
   }, []);
@@ -53,9 +55,25 @@ const BlogSection = () => {
     return text.length > 200 ? text.slice(0, 200) + '…' : text;
   };
 
-  const next = () => setIndex((prev) => (prev + 1) % posts.length);
-  const prev = () =>
-    setIndex((prev) => (prev - 1 + posts.length) % posts.length);
+  // Logika karuzeli
+  const isCarousel = posts.length > 3;
+
+  const next = () => {
+    if (isCarousel) {
+      setIndex((prev) => (prev + 1) % posts.length);
+    }
+  };
+
+  const prev = () => {
+    if (isCarousel) {
+      setIndex((prev) => (prev - 1 + posts.length) % posts.length);
+    }
+  };
+
+  // Decyzja co wyświetlamy: jeśli mało postów, to wszystkie. Jeśli dużo, to wycinek z karuzeli.
+  const displayedPosts = isCarousel
+    ? [0, 1, 2].map((offset) => posts[(index + offset) % posts.length])
+    : posts;
 
   return (
     <section
@@ -70,7 +88,7 @@ const BlogSection = () => {
           preserveAspectRatio="none"
         >
           <path
-            d="M0,0V46.29c47.79,22.2..."
+            d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
             fill="url(#waveBlog1)"
           ></path>
           <defs>
@@ -101,27 +119,36 @@ const BlogSection = () => {
           </p>
         </div>
 
-        {/* KARUZELA */}
+        {/* KONTENER POSTÓW */}
         <div className="relative w-full flex justify-center items-center">
-          {/* Strzałka lewa */}
-          <button
-            onClick={prev}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-xl p-4 rounded-full hover:scale-110 transition"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
-          </button>
+          
+          {/* Strzałka lewa - tylko jeśli jest karuzela */}
+          {isCarousel && (
+            <button
+              onClick={prev}
+              className="hidden md:flex absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2 bg-white shadow-xl p-4 rounded-full hover:scale-110 transition z-10"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-700" />
+            </button>
+          )}
 
-          {/* KAFELKI */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
-            {[0, 1, 2].map((offset) => {
-              const post = posts[(index + offset) % posts.length];
+          {/* KAFELKI - Grid responsywny */}
+          {/* Używamy flex na desktopie, żeby ładnie wyśrodkować jeśli postów jest mniej niż 3 */}
+          <div className={`w-full grid grid-cols-1 gap-10 ${
+            posts.length < 3 
+              ? 'md:flex md:justify-center' // Jeśli mało postów, centrujemy flexem
+              : 'md:grid-cols-3'            // Jeśli 3 lub karuzela, klasyczny grid
+          }`}>
+            {displayedPosts.map((post, idx) => {
               const snippet = extractSnippet(post.body);
-
+              // Key używamy _id, a przy karuzeli dodajemy index renderowania, żeby uniknąć konfliktów przy szybkim przewijaniu
               return (
                 <Link
-                  key={post._id}
+                  key={`${post._id}-${idx}`}
                   href={`/blog/${post.slug.current}`}
-                  className="group bg-white rounded-3xl shadow-2xl p-6 flex flex-col hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]"
+                  className={`group bg-white rounded-3xl shadow-2xl p-6 flex flex-col hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] ${
+                    posts.length < 3 ? 'md:w-1/3' : '' // Jeśli flex, nadajemy szerokość
+                  }`}
                 >
                   <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-6 shadow-lg">
                     {post.mainImage?.asset?.url ? (
@@ -132,11 +159,13 @@ const BlogSection = () => {
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200"></div>
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                        Brak zdjęcia
+                      </div>
                     )}
                   </div>
 
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
 
@@ -145,11 +174,11 @@ const BlogSection = () => {
                     {formatDate(post.publishedAt)}
                   </p>
 
-                  <p className="text-gray-700 text-base leading-relaxed mb-6">
+                  <p className="text-gray-700 text-base leading-relaxed mb-6 line-clamp-3 flex-grow">
                     {snippet}
                   </p>
 
-                  <span className="inline-block border border-primary-600 text-primary-600 px-6 py-3 rounded-full font-semibold text-sm group-hover:bg-primary-600 group-hover:text-white transition-all w-fit">
+                  <span className="inline-block border border-primary-600 text-primary-600 px-6 py-3 rounded-full font-semibold text-sm group-hover:bg-primary-600 group-hover:text-white transition-all w-fit mt-auto">
                     Czytaj dalej
                   </span>
                 </Link>
@@ -157,13 +186,15 @@ const BlogSection = () => {
             })}
           </div>
 
-          {/* Strzałka prawa */}
-          <button
-            onClick={next}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-xl p-4 rounded-full hover:scale-110 transition"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-700" />
-          </button>
+          {/* Strzałka prawa - tylko jeśli jest karuzela */}
+          {isCarousel && (
+            <button
+              onClick={next}
+              className="hidden md:flex absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2 bg-white shadow-xl p-4 rounded-full hover:scale-110 transition z-10"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-700" />
+            </button>
+          )}
         </div>
 
         <div className="text-center mt-20">
