@@ -24,7 +24,7 @@ const Footer = () => {
         {/* ZMIANA: Usunięto md:text-left, aby domyślnie wszystko było wyśrodkowane */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
 
-          {/* Kolumna 1: ZMIANA - dodano md:text-left */}
+          {/* Kolumna 1: ZMIANA - dodano md:items-start i whitespace-pre-line */}
           <div className="flex flex-col items-center md:items-start md:text-left">
             <Link href="/" className="cursor-pointer mb-4">
               <h1 className="text-3xl font-bold font-poppins">
@@ -32,8 +32,11 @@ const Footer = () => {
                 <span className="text-primary-500">tywacja</span>
               </h1>
             </Link>
-            <p className="text-base max-w-xs">
-              Tworzę przestrzeń dla nauczycieli i uczniów, którzy chcą uczyć i uczyć się z sensem.
+
+            <p className="text-base max-w-xs whitespace-pre-line">
+              Tworzę przestrzeń dla nauczycieli
+              {'\n'}i uczniów, którzy chcą uczyć
+              {'\n'}i uczyć się z sensem.
             </p>
           </div>
 

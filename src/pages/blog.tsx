@@ -67,15 +67,15 @@ export default function BlogPage() {
       </div>
 
       {/* NAGŁÓWEK */}
-      <div className="relative max-w-4xl mx-auto px-6 text-center mb-14">
-        <h1 className="text-5xl font-bold font-poppins text-gray-900">
+      <div className="relative max-w-4xl mx-auto px-6 text-center mb-16">
+        <h1 className="text-5xl font-bold font-poppins text-gray-900 mb-6">
           Blog{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-800">
             Biotywacji
           </span>
         </h1>
 
-        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="mb-6 text-lg text-gray-600 max-w-2xl mx-auto">
           Praktyczne artykuły oparte na nauce i psychologii, które pomogą Ci
           podejmować mądrzejsze decyzje i rozwijać się konsekwentnie.
         </p>
