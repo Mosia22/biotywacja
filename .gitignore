@@ -5,8 +5,8 @@
 /.next/
 /out/
 
-# Sanity Studio (ignorujemy CAŁY folder, aby rozwiązać problem)
-/studio/
+# # Sanity Studio (ignorujemy CAŁY folder, aby rozwiązać problem)
+# /studio/
 
 # Pliki logów i systemowe
 npm-debug.log*
