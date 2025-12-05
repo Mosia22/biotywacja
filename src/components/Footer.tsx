@@ -7,7 +7,6 @@ const Footer = () => {
 
   const navLinks = [
     { href: '/#o-mnie', text: 'O mnie' },
-    { href: '/sklep', text: 'Sklep' },
     { href: '/blog', text: 'Blog' },
   ];
 
